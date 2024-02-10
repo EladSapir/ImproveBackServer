@@ -40,3 +40,7 @@ exports.uploadFile = (req, res) => {
     }
   });
 };
+
+exports.hey = (req, res) => {
+  res.send('Hey there!');
+}

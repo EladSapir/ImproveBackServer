@@ -26,13 +26,13 @@ def useSVC(DB):
 
     # Determine CV folds
     cv_folds = 4 if X_train.shape[0] < 500 else 2
-    print("CV Folds:", cv_folds)
+    # print("CV Folds:", cv_folds)
 
     # Initialize the SVM classifier
     model = SVC(random_state=42)
 
     # Initialize GridSearchCV
-    grid_search = GridSearchCV(estimator=model, param_grid=get_svm_param_grid(), cv=cv_folds, n_jobs=-1, verbose=2)
+    grid_search = GridSearchCV(estimator=model, param_grid=get_svm_param_grid(), cv=cv_folds, n_jobs=-1, verbose=0)
 
     # Fit GridSearchCV
     grid_search.fit(X_train, y_train)
@@ -46,7 +46,7 @@ def useSVC(DB):
     # Evaluation
     best_params = grid_search.best_params_
     print("Best Parameters:", best_params)
-    print(classification_report(y_test, y_pred))
+    #print(classification_report(y_test, y_pred))
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:

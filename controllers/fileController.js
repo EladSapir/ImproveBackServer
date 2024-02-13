@@ -42,5 +42,6 @@ exports.uploadFile = (req, res) => {
 };
 
 exports.hey = (req, res) => {
+  console.log('Hey there!');
   res.send('Hey there!');
 }

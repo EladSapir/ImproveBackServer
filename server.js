@@ -3,8 +3,8 @@ const dotenv = require ("dotenv").config()
 //const http = require('http');
 
 
-app.listen(4000,()=>{
-    console.log('server started on port ' + 4000)
+app.listen(3000,()=>{
+    console.log('server started on port ' + 3000)
 })
 
 // const server = http.createServer((req, res) => {

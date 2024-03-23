@@ -16,7 +16,7 @@ app.use(bodyParser.urlencoded({extended:true}))
 
 
 app.use('/',routes)
-const PORT = process.env.PORT
+const PORT = 4000
 
 
 

@@ -1,9 +1,7 @@
-
 const multer = require('multer');
-const fs = require('fs');
 const path = require('path');
-const { spawn } = require('child_process');
-
+const { promisify } = require('util');
+const exec = promisify(require('child_process').exec);
 
 // Set up storage engine
 const storage = multer.diskStorage({
@@ -18,9 +16,14 @@ const storage = multer.diskStorage({
 // Configure multer for file uploads
 const upload = multer({ storage: storage }).single('file');
 
+const executePythonScript = async (checkbox, target, db, k) => {
+  const scriptPath = process.env.TOOLKIT_SCRIPT_PATH;
+  return await exec(`python ${scriptPath} ${checkbox} ${target} ${db} ${k}`);
+};
+
 // Define the route and middleware to handle file uploads and checkbox data
 exports.uploadFile = (req, res) => {
-  upload(req, res, function (uploadError) {
+  upload(req, res, async (uploadError) => {
     if (uploadError instanceof multer.MulterError) {
       // A multer error occurred when uploading.
       return res.status(500).send(`Multer uploading error: ${uploadError.message}`);
@@ -28,55 +31,25 @@ exports.uploadFile = (req, res) => {
       // An unknown error occurred when uploading.
       return res.status(500).send(`Unknown uploading error: ${uploadError.message}`);
     }
+
+    // Collect request body data
     const k = req.body.k;
     const target = req.body.target;
-    // If this point is reached, file upload was successful.
     const checkboxes = req.body.checkboxes; // Assuming checkboxes is sent as a JSON array or a comma-separated list
     const file = req.file;
 
-    // Ensure checkboxes data is in the correct format for the Python script
-    const checkboxesStr = Array.isArray(checkboxes) ? checkboxes.join(',') : checkboxes;
-
-    // Call the Python script using spawn
-    const pythonProcess = spawn('python', ['toolkit/ToolsKit.py', checkboxesStr,target, file.path,k]);
-
-    pythonProcess.stdout.on('data', (data) => {
-      // Handle the transformed file path returned by the Python script
-      const transformedFilePath = data.toString().trim();
-
-      // Define the new path for the transformed file
-      const newFilePath = path.join(__dirname, 'uploads', path.basename(transformedFilePath));
-
-      // Move the file from its temporary location to the 'uploads' directory
-      fs.rename(transformedFilePath, newFilePath, (err) => {
-        if (err) {
-          console.error('Error saving the file:', err);
-          return res.status(500).send('Error processing the file.');
-        }
-
-        // If the file was handled successfully, send a response
-        res.send('File processed successfully.');
-      });
-    });
-
-    pythonProcess.stderr.on('data', (data) => {
-      console.error(`stderr: ${data}`);
-      res.status(500).send('Error processing the file.');
-    });
-
-    pythonProcess.on('error', (error) => {
-      console.error(`Error spawning Python process: ${error}`);
-      res.status(500).send('Error processing the file.');
-    });
-
-    // If there's no data streamed from Python, ensure the client gets a response
-    pythonProcess.on('close', (code) => {
-      if (code !== 0) {
-        return res.status(500).send('Python script did not execute successfully.');
+    try {
+      // Call the Python script
+      const { stdout, stderr } = await executePythonScript(checkboxes, target, file.path, k);
+      if (stderr) {
+        console.error(`stderr: ${stderr}`);
+        return res.status(500).send({ success: false, message: 'Error executing Python script.', error: stderr });
       }
-      // This message may be redundant due to the fs.rename callback, but it's useful for debugging
-      console.log('Python script executed successfully.');
-    });
+      // Only send one response, indicating success and including any data or messages
+      return res.send({ success: true, message: 'File uploaded and processed successfully'});
+    } catch (error) {
+      console.error(`exec error: ${error}`);
+      return res.status(500).send({ success: false, message: 'Failed to execute Python script.', error: error.message });
+    }
   });
 };
-

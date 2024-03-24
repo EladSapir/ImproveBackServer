@@ -12,6 +12,7 @@ import zipfile
 
 def UseToolKit(CheckBoxes, target, CSV_path='Database.csv', missing_values_representation='NA', k=1):
     ChangedCSV = pd.read_csv(CSV_path, na_values=missing_values_representation)
+    print("ChangedCSV -------------- ", ChangedCSV)
     Encoders = {}
     Scaler = None
 
@@ -26,16 +27,16 @@ def UseToolKit(CheckBoxes, target, CSV_path='Database.csv', missing_values_repre
     if CheckBoxes[4]:
         CSVsize = ChangedCSV.shape[1]
         ChangedCSV = UseRemoveOutliers(ChangedCSV, CSVsize)
-    
+    print(ChangedCSV)
     # Ensure the temp directory exists
-    if not os.path.exists('temp'):
-        os.makedirs('temp')
+    if not os.path.exists('uploads'):
+        os.makedirs('uploads')
 
     # Get current date and time
     now = datetime.now()
     date_time_str = now.strftime('%Y-%m-%d_%H-%M-%S')
     filename = f"newData_{date_time_str}.csv"
-    full_csv_path = os.path.join('temp', filename)
+    full_csv_path = os.path.join('uploads', filename)
     ChangedCSV.to_csv(full_csv_path, index=False)
 
     # Initialize a list to keep track of files to be zipped
@@ -43,20 +44,20 @@ def UseToolKit(CheckBoxes, target, CSV_path='Database.csv', missing_values_repre
 
     # Save the encoders and scaler if they were created
     if CheckBoxes[1] and Encoders:
-        encoders_path = os.path.join('temp', f'encoders_{date_time_str}.pkl')
+        encoders_path = os.path.join('uploads', f'encoders_{date_time_str}.pkl')
         with open(encoders_path, 'wb') as file:
             pickle.dump(Encoders, file)
         files_to_zip.append(encoders_path)
 
     if CheckBoxes[2] and Scaler:
-        scaler_path = os.path.join('temp', f'scaler_{date_time_str}.pkl')
+        scaler_path = os.path.join('uploads', f'scaler_{date_time_str}.pkl')
         with open(scaler_path, 'wb') as file:
             pickle.dump(Scaler, file)
         files_to_zip.append(scaler_path)
 
     # Zip files if there are any to zip
     if files_to_zip:
-        zip_path = os.path.join('temp', f'transformers_{date_time_str}.zip')
+        zip_path = os.path.join('uploads', f'transformers_{date_time_str}.zip')
         with zipfile.ZipFile(zip_path, 'w') as zipf:
             for file in files_to_zip:
                 zipf.write(file, os.path.basename(file))
@@ -64,8 +65,8 @@ def UseToolKit(CheckBoxes, target, CSV_path='Database.csv', missing_values_repre
     else:
         zip_path = None
 
-    # Return the paths
-    return full_csv_path, zip_path
+    # Return the paths ADD ZIP PATH TO RETURN
+    return full_csv_path
 
 
 def UseFeatureSelection(ChangedCSV):
@@ -90,6 +91,7 @@ if __name__ == "__main__":
         sys.exit(1)
     target = sys.argv[2]
     Db = sys.argv[3]
+    print(Db)
     k = sys.argv[4]
     checkBoxes = [s.strip().lower() == 'true' for s in sys.argv[1].split(',')]
-    UseToolKit(checkBoxes,target, Db,'NA',k)
+    print(UseToolKit(checkBoxes,target, Db,'NA',k))

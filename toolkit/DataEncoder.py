@@ -20,7 +20,7 @@ def encode_dataset(data):
         if not is_numerical(data[column]):
             # Print unique values for non-numerical columns
             unique_values = set(data[column])
-            print(f"Unique values for {column}: {unique_values}")
+            #print(f"Unique values for {column}: {unique_values}")
 
             # Initialize LabelEncoder for non-numerical columns
             encoder = LabelEncoder()

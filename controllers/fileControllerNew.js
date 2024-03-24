@@ -29,6 +29,7 @@ exports.uploadFile = (req, res) => {
       return res.status(500).send(`Unknown uploading error: ${uploadError.message}`);
     }
     const k = req.body.k;
+    const target = req.body.target;
     // If this point is reached, file upload was successful.
     const checkboxes = req.body.checkboxes; // Assuming checkboxes is sent as a JSON array or a comma-separated list
     const file = req.file;
@@ -37,7 +38,7 @@ exports.uploadFile = (req, res) => {
     const checkboxesStr = Array.isArray(checkboxes) ? checkboxes.join(',') : checkboxes;
 
     // Call the Python script using spawn
-    const pythonProcess = spawn('python', ['ToolKit.py', checkboxesStr, file.path,k]);
+    const pythonProcess = spawn('python', ['toolkit/ToolsKit.py', checkboxesStr,target, file.path,k]);
 
     pythonProcess.stdout.on('data', (data) => {
       // Handle the transformed file path returned by the Python script

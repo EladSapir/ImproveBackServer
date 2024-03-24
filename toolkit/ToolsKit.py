@@ -7,41 +7,65 @@ from RobustScaler import *
 from FeatureSelection import *
 from RemoveOutliers import *
 from datetime import datetime
+import pickle
+import zipfile
 
-
-def UseToolKit(CheckBoxes, CSV_path='Database.csv', missing_values_representation='NA', k=1):
+def UseToolKit(CheckBoxes, target, CSV_path='Database.csv', missing_values_representation='NA', k=1):
     ChangedCSV = pd.read_csv(CSV_path, na_values=missing_values_representation)
-    CSVsize = ChangedCSV.shape[1]
-    if CheckBoxes[0]:  # complete missing valuse in the csv file
+    Encoders = {}
+    Scaler = None
+
+    if CheckBoxes[0]:  # Complete missing values in the csv file
         ChangedCSV = impute_csv_file(ChangedCSV)
     if CheckBoxes[1]:
         ChangedCSV, Encoders = encode_dataset(ChangedCSV)
     if CheckBoxes[2]:
         ChangedCSV, Scaler = scale_csv(ChangedCSV)
     if CheckBoxes[3]:
-        ChangedCSV = UseFeatureSelection(ChangedCSV,k)     # function down lets to remove until there are 4 columns(1each time)
+        ChangedCSV = UseFeatureSelection(ChangedCSV, k)
     if CheckBoxes[4]:
-        ChangedCSV = UseRemoveOutliers(ChangedCSV, CSVsize)  # function down lets to remove 10% of original CSV
+        CSVsize = ChangedCSV.shape[1]
+        ChangedCSV = UseRemoveOutliers(ChangedCSV, CSVsize)
+    
+    # Ensure the temp directory exists
     if not os.path.exists('temp'):
         os.makedirs('temp')
 
-        # Get current date and time
+    # Get current date and time
     now = datetime.now()
-
-    # Format the date and time string for the filename
     date_time_str = now.strftime('%Y-%m-%d_%H-%M-%S')
+    filename = f"newData_{date_time_str}.csv"
+    full_csv_path = os.path.join('temp', filename)
+    ChangedCSV.to_csv(full_csv_path, index=False)
 
-    # Construct the filename with the desired format
-    filename = f"{'newData'}_{date_time_str}.csv"
+    # Initialize a list to keep track of files to be zipped
+    files_to_zip = []
 
-    # Construct the full path
-    full_path = os.path.join('temp', filename)
+    # Save the encoders and scaler if they were created
+    if CheckBoxes[1] and Encoders:
+        encoders_path = os.path.join('temp', f'encoders_{date_time_str}.pkl')
+        with open(encoders_path, 'wb') as file:
+            pickle.dump(Encoders, file)
+        files_to_zip.append(encoders_path)
 
-    # Save the DataFrame to the CSV file
-    ChangedCSV.to_csv(full_path, index=False)
+    if CheckBoxes[2] and Scaler:
+        scaler_path = os.path.join('temp', f'scaler_{date_time_str}.pkl')
+        with open(scaler_path, 'wb') as file:
+            pickle.dump(Scaler, file)
+        files_to_zip.append(scaler_path)
 
-    # Return the full path of the saved file
-    return full_path
+    # Zip files if there are any to zip
+    if files_to_zip:
+        zip_path = os.path.join('temp', f'transformers_{date_time_str}.zip')
+        with zipfile.ZipFile(zip_path, 'w') as zipf:
+            for file in files_to_zip:
+                zipf.write(file, os.path.basename(file))
+                os.remove(file)  # Remove the file after zipping
+    else:
+        zip_path = None
+
+    # Return the paths
+    return full_csv_path, zip_path
 
 
 def UseFeatureSelection(ChangedCSV):
@@ -61,10 +85,11 @@ def UseRemoveOutliers(ChangedCSV, CSVsize):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 4:
+    if len(sys.argv) != 5:
         print("Usage: python your_script.py <checkBoxes><Db><K>")
         sys.exit(1)
-    Db = sys.argv[2]
-    k = sys.argv[3]
+    target = sys.argv[2]
+    Db = sys.argv[3]
+    k = sys.argv[4]
     checkBoxes = [s.strip().lower() == 'true' for s in sys.argv[1].split(',')]
-    UseToolKit(checkBoxes, Db, k)
+    UseToolKit(checkBoxes,target, Db,'NA',k)

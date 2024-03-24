@@ -26,20 +26,22 @@ def user_choice_for_column(column, column_name):
     """
     Prompt the user for the imputation strategy for a column based on its data type.
     """
-    print(f"\nColumn: {column_name}")
+    #print(f"\nColumn: {column_name}")
 
     if is_numeric(column):
-        print("Choose the imputation strategy for numeric data:")
-        print("1: Average (mean)")
-        print("2: Median")
-        print("3: Most Frequent")
-        print("4: Constant Value")
+        # print("Choose the imputation strategy for numeric data:")
+        # print("1: Average (mean)")
+        # print("2: Median")
+        # print("3: Most Frequent")
+        # print("4: Constant Value")
+        choice = '3'
     else:
-        print("Choose the imputation strategy for non-numeric data:")
-        print("1: Most Frequent")
-        print("2: Constant Value")
+        # print("Choose the imputation strategy for non-numeric data:")
+        # print("1: Most Frequent")
+        # print("2: Constant Value")
+        choice = '1'
 
-    choice = input("Enter your choice: ")
+    #choice = input("Enter your choice: ")
     if is_numeric(column):
         if choice == '1':
             return 'mean'
@@ -48,19 +50,19 @@ def user_choice_for_column(column, column_name):
         elif choice == '3':
             return 'most_frequent'
         elif choice == '4':
-            constant_value = input("Enter the constant value: ")
+            #constant_value = input("Enter the constant value: ")
             return ('constant', constant_value)
         else:
-            print("Invalid choice. Defaulting to 'most_frequent'")
+            #print("Invalid choice. Defaulting to 'most_frequent'")
             return 'most_frequent'
     else:
         if choice == '1':
             return 'most_frequent'
         elif choice == '2':
-            constant_value = input("Enter the constant value: ")
+            #constant_value = input("Enter the constant value: ")
             return ('constant', constant_value)
         else:
-            print("Invalid choice. Defaulting to 'most_frequent'")
+            #print("Invalid choice. Defaulting to 'most_frequent'")
             return 'most_frequent'
 
 
@@ -72,12 +74,10 @@ def impute_csv_file(df):
 
     for column in df.columns:
         strategy = user_choice_for_column(df[column], column)
-
-        if isinstance(strategy, tuple) and strategy[0] == 'constant':
-            df[column] = df[column].fillna(strategy[1])
-        else:
-            df[column] = impute_column(df[[column]], strategy).ravel()
-
+        # if isinstance(strategy, tuple) and strategy[0] == 'constant':
+        #     df[column] = df[column].fillna(strategy[1])
+        # else:
+        df[column] = impute_column(df[[column]], strategy).ravel()
     return df
 
 

@@ -1,3 +1,4 @@
 /.env
 /req.rest
 /tests
+node_modules/

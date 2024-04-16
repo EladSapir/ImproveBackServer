@@ -47,7 +47,7 @@ exports.uploadFile = (req, res) => {
       }
       console.log(`stdout: ${stdout}`)
       // Only send one response, indicating success and including any data or messages
-      return res.send({ success: true, message: 'File uploaded and processed successfully'});
+      return res.send({ success: true, message: 'File uploaded and processed successfully', data: stdout});
     } catch (error) {
       console.error(`exec error: ${error}`);
       return res.status(500).send({ success: false, message: 'Failed to execute Python script.', error: error.message });

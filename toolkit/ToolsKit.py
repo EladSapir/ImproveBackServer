@@ -70,8 +70,14 @@ def UseToolKit(CheckBoxes, target, CSV_path='Database.csv', missing_values_repre
     else:  
         upload_array.append(None)
 
+    # Full path combining the script's directory with the relative path
+    full_path = os.path.join(os.path.dirname(__file__), full_csv_path)
+
+    # Normalize the path to ensure it's valid
+    normalized_path = os.path.normpath(full_path)
+
     # Return the paths ADD ZIP PATH TO RETURN
-    return upload_array[0],upload_array[1],upload_array[2],full_csv_path
+    return upload_array[0],upload_array[1],upload_array[2],full_path
 
 
 

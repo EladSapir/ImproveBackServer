@@ -30,9 +30,9 @@ def encode_dataset(data):
 
             # Store the encoder
             encoders[column] = encoder
-        else:
+        #else:
             # Skip encoding for numerical columns
-            print(f"Skipping encoding for numerical column: {column}")
+            #print(f"Skipping encoding for numerical column: {column}")
 
     return data, encoders
 

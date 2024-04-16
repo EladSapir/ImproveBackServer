@@ -7,12 +7,13 @@ from RobustScaler import *
 from FeatureSelection import *
 from RemoveOutliers import *
 from datetime import datetime
+from uploadfile import *
 import pickle
-import zipfile
+import json
 
 def UseToolKit(CheckBoxes, target, CSV_path='Database.csv', missing_values_representation='NA', k=1):
     ChangedCSV = pd.read_csv(CSV_path, na_values=missing_values_representation)
-    print("ChangedCSV -------------- ", ChangedCSV)
+    #print("ChangedCSV -------------- ", ChangedCSV)
     Encoders = {}
     Scaler = None
 
@@ -26,7 +27,7 @@ def UseToolKit(CheckBoxes, target, CSV_path='Database.csv', missing_values_repre
         ChangedCSV = feature_selection(ChangedCSV, target,k)
     if CheckBoxes[4]:
         ChangedCSV = remove_outliers(ChangedCSV)
-    print(ChangedCSV)
+    #print(ChangedCSV)
     # Ensure the temp directory exists
     if not os.path.exists('uploads'):
         os.makedirs('uploads')
@@ -37,35 +38,40 @@ def UseToolKit(CheckBoxes, target, CSV_path='Database.csv', missing_values_repre
     filename = f"newData_{date_time_str}.csv"
     full_csv_path = os.path.join('uploads', filename)
     ChangedCSV.to_csv(full_csv_path, index=False)
+    upload_array=[]
+    upload_array.append(upload_file_to_gist(full_csv_path))
 
     # Initialize a list to keep track of files to be zipped
-    files_to_zip = []
 
     # Save the encoders and scaler if they were created
     if CheckBoxes[1] and Encoders:
         encoders_path = os.path.join('uploads', f'encoders_{date_time_str}.pkl')
-        with open(encoders_path, 'wb') as file:
-            pickle.dump(Encoders, file)
-        files_to_zip.append(encoders_path)
+        try:
+            encoded_data = json.dumps(Encoders, default=str)  # using `str` as default to handle non-serializable types simply
+        except TypeError as e:
+            encoded_data = None
+        if encoded_data is not None:
+            with open(encoders_path, 'w', encoding='utf-8') as file:
+                file.write(encoded_data)
+            upload_array.append(upload_file_to_gist(encoders_path))
+    else:
+        upload_array.append(None)
 
     if CheckBoxes[2] and Scaler:
         scaler_path = os.path.join('uploads', f'scaler_{date_time_str}.pkl')
-        with open(scaler_path, 'wb') as file:
-            pickle.dump(Scaler, file)
-        files_to_zip.append(scaler_path)
-
-    # Zip files if there are any to zip
-    if files_to_zip:
-        zip_path = os.path.join('uploads', f'transformers_{date_time_str}.zip')
-        with zipfile.ZipFile(zip_path, 'w') as zipf:
-            for file in files_to_zip:
-                zipf.write(file, os.path.basename(file))
-                os.remove(file)  # Remove the file after zipping
-    else:
-        zip_path = None
+        try:
+            scaler_data = json.dumps(Scaler, default=str)  # using `str` as default to handle non-serializable types simply
+        except TypeError as e:
+            scaler_data = None
+        if scaler_data is not None:
+            with open(scaler_path, 'w', encoding='utf-8') as file:
+                file.write(scaler_data)
+            upload_array.append(upload_file_to_gist(scaler_path))
+    else:  
+        upload_array.append(None)
 
     # Return the paths ADD ZIP PATH TO RETURN
-    return full_csv_path
+    return upload_array[0],upload_array[1],upload_array[2],full_csv_path
 
 
 
@@ -75,7 +81,7 @@ if __name__ == "__main__":
         sys.exit(1)
     target = sys.argv[2]
     Db = sys.argv[3]
-    print(Db)
+    #print(Db)
     k = sys.argv[4]
     checkBoxes = [s.strip().lower() == 'true' for s in sys.argv[1].split(',')]
     print(UseToolKit(checkBoxes,target, Db,'NA',k))

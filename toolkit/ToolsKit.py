@@ -23,10 +23,9 @@ def UseToolKit(CheckBoxes, target, CSV_path='Database.csv', missing_values_repre
     if CheckBoxes[2]:
         ChangedCSV, Scaler = scale_csv(ChangedCSV)
     if CheckBoxes[3]:
-        ChangedCSV = UseFeatureSelection(ChangedCSV, k)
+        ChangedCSV = feature_selection(ChangedCSV, target,k)
     if CheckBoxes[4]:
-        CSVsize = ChangedCSV.shape[1]
-        ChangedCSV = UseRemoveOutliers(ChangedCSV, CSVsize)
+        ChangedCSV = remove_outliers(ChangedCSV)
     print(ChangedCSV)
     # Ensure the temp directory exists
     if not os.path.exists('uploads'):
@@ -68,21 +67,6 @@ def UseToolKit(CheckBoxes, target, CSV_path='Database.csv', missing_values_repre
     # Return the paths ADD ZIP PATH TO RETURN
     return full_csv_path
 
-
-def UseFeatureSelection(ChangedCSV):
-    numberOfColumns = ChangedCSV.shape[0]
-    if numberOfColumns <= 4:
-        return [False]
-    else:
-        ChangedCSV = [True, feature_selection(ChangedCSV, 1)]
-
-
-def UseRemoveOutliers(ChangedCSV, CSVsize):
-    numberOfRows = ChangedCSV.shape[1]
-    if numberOfRows / CSVsize <= 0.9:
-        return [False]
-    else:
-        return [True, remove_outliers(ChangedCSV)]
 
 
 if __name__ == "__main__":

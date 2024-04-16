@@ -9,7 +9,7 @@ def feature_selection(data, target_col_name, k=10):
     y = data[target_col_name]
 
     # Apply feature selection
-    selector = SelectKBest(score_func=f_classif, k=k)
+    selector = SelectKBest(score_func=f_classif, k=int(k))
     X_new = selector.fit_transform(X, y)
 
     # Get the columns that were selected

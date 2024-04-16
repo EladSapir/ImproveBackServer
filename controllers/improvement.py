@@ -1,8 +1,9 @@
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.svm import SVC
-from sklearn.metrics import classification_report
+from sklearn.metrics import confusion_matrix
 import pandas as pd
 import sys
+import json
 
 def useSVC(DB):
     def get_svm_param_grid():
@@ -45,13 +46,14 @@ def useSVC(DB):
 
     # Evaluation
     best_params = grid_search.best_params_
-    print("Best Parameters:", best_params)
+    # print("Best Parameters:", best_params)
+    params_json = json.dumps(best_params)
+    cm = confusion_matrix(y_test, y_pred)
+    cm_json = json.dumps(cm.tolist())
+    return params_json, cm_json
     #print(classification_report(y_test, y_pred))
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print("Usage: python your_script.py <Db>")
-        sys.exit(1)
-    
-    Db = sys.argv[1]
-    useSVC(Db)
+    file_path = sys.argv[1]
+    result = useSVC(file_path)
+    print(result)  # This will be captured by the python-shell in Node.js

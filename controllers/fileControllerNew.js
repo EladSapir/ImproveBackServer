@@ -2,6 +2,7 @@ const multer = require('multer');
 const path = require('path');
 const { promisify } = require('util');
 const exec = promisify(require('child_process').exec);
+const fs = require('fs').promises;
 require('dotenv').config(); // Ensure to load the environment variables
 
 // Set up storage engine
@@ -46,11 +47,21 @@ exports.uploadFile = (req, res) => {
         console.error(`stderr: ${stderr}`);
         return res.status(500).send({ success: false, message: 'Error executing Python script.', error: stderr });
       }
-      console.log(`stdout: ${stdout}`)
+      console.log(`stdout: ${stdout}`);
+
+      // Delete the uploaded file after the Python script has finished executing
+      await fs.unlink(file.path);
+
       // Only send one response, indicating success and including any data or messages
-      return res.send({ success: true, message: 'File uploaded and processed successfully', data: stdout});
+      return res.send({ success: true, message: 'File uploaded and processed successfully', data: stdout });
     } catch (error) {
       console.error(`exec error: ${error}`);
+
+      // Ensure file is deleted even if there is an error
+      await fs.unlink(file.path).catch((unlinkError) => {
+        console.error(`Error deleting file: ${unlinkError}`);
+      });
+
       return res.status(500).send({ success: false, message: 'Failed to execute Python script.', error: error.message });
     }
   });

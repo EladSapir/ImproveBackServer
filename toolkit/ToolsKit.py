@@ -51,6 +51,7 @@ def UseToolKit(CheckBoxes, target, CSV_path='Database.csv', missing_values_repre
             with open(encoders_path, 'w', encoding='utf-8') as file:
                 file.write(encoded_data)
             upload_array.append(upload_file_to_gist(encoders_path))
+        os.remove(encoders_path)
     else:
         upload_array.append(None)
 
@@ -64,6 +65,7 @@ def UseToolKit(CheckBoxes, target, CSV_path='Database.csv', missing_values_repre
             with open(scaler_path, 'w', encoding='utf-8') as file:
                 file.write(scaler_data)
             upload_array.append(upload_file_to_gist(scaler_path))
+        os.remove(scaler_path)
     else:  
         upload_array.append(None)
 

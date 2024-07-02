@@ -50,7 +50,7 @@ def useSVC(DB):
     params_json = json.dumps(best_params)
     cm = confusion_matrix(y_test, y_pred)
     cm_json = json.dumps(cm.tolist())
-    return params_json, cm_json
+    return None #params_json, cm_json 
     #print(classification_report(y_test, y_pred))
 
 if __name__ == "__main__":

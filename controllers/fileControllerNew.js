@@ -2,6 +2,7 @@ const multer = require('multer');
 const path = require('path');
 const { promisify } = require('util');
 const exec = promisify(require('child_process').exec);
+require('dotenv').config(); // Ensure to load the environment variables
 
 // Set up storage engine
 const storage = multer.diskStorage({
@@ -17,7 +18,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage }).single('file');
 
 const executePythonScript = async (checkbox, target, db, k) => {
-  const scriptPath = process.env.TOOLKIT_SCRIPT_PATH;
+  const scriptPath = path.resolve(__dirname, process.env.TOOLKIT_SCRIPT_PATH);
   return await exec(`python ${scriptPath} ${checkbox} ${target} ${db} ${k}`);
 };
 

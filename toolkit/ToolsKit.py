@@ -1,6 +1,6 @@
 import os
 import sys
-
+import pandas as pd
 from Imputer_FillMissingCSV import *
 from DataEncoder import *
 from RobustScaler import *
@@ -13,7 +13,6 @@ import json
 
 def UseToolKit(CheckBoxes, target, CSV_path='Database.csv', missing_values_representation='NA', k=1):
     ChangedCSV = pd.read_csv(CSV_path, na_values=missing_values_representation)
-    #print("ChangedCSV -------------- ", ChangedCSV)
     Encoders = {}
     Scaler = None
 
@@ -24,10 +23,10 @@ def UseToolKit(CheckBoxes, target, CSV_path='Database.csv', missing_values_repre
     if CheckBoxes[2]:
         ChangedCSV, Scaler = scale_csv(ChangedCSV)
     if CheckBoxes[3]:
-        ChangedCSV = feature_selection(ChangedCSV, target,k)
+        ChangedCSV = feature_selection(ChangedCSV, target, k)
     if CheckBoxes[4]:
         ChangedCSV = remove_outliers(ChangedCSV)
-    #print(ChangedCSV)
+
     # Ensure the temp directory exists
     if not os.path.exists('uploads'):
         os.makedirs('uploads')
@@ -38,10 +37,8 @@ def UseToolKit(CheckBoxes, target, CSV_path='Database.csv', missing_values_repre
     filename = f"newData_{date_time_str}.csv"
     full_csv_path = os.path.join('uploads', filename)
     ChangedCSV.to_csv(full_csv_path, index=False)
-    upload_array=[]
+    upload_array = []
     upload_array.append(upload_file_to_gist(full_csv_path))
-
-    # Initialize a list to keep track of files to be zipped
 
     # Save the encoders and scaler if they were created
     if CheckBoxes[1] and Encoders:
@@ -70,16 +67,11 @@ def UseToolKit(CheckBoxes, target, CSV_path='Database.csv', missing_values_repre
     else:  
         upload_array.append(None)
 
-    # Full path combining the script's directory with the relative path
-    full_path = os.path.join(os.path.dirname(__file__), full_csv_path)
+    # Get the relative path based on the current working directory
+    relative_path = os.path.relpath(full_csv_path, start=os.getcwd())
 
-    # Normalize the path to ensure it's valid
-    normalized_path = os.path.normpath(full_path)
-
-    # Return the paths ADD ZIP PATH TO RETURN
-    return upload_array[0],upload_array[1],upload_array[2],full_path
-
-
+    # Return the paths
+    return upload_array[0], upload_array[1], upload_array[2], relative_path
 
 if __name__ == "__main__":
     if len(sys.argv) != 5:
@@ -87,7 +79,6 @@ if __name__ == "__main__":
         sys.exit(1)
     target = sys.argv[2]
     Db = sys.argv[3]
-    #print(Db)
     k = sys.argv[4]
     checkBoxes = [s.strip().lower() == 'true' for s in sys.argv[1].split(',')]
-    print(UseToolKit(checkBoxes,target, Db,'NA',k))
+    print(UseToolKit(checkBoxes, target, Db, 'NA', k))

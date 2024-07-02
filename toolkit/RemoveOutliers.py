@@ -1,7 +1,6 @@
 import pandas as pd
 from sklearn.ensemble import IsolationForest
 
-
 def detect_outliers_with_isolation_forest(df):
     """
     Detect outliers using the Isolation Forest method.
@@ -13,14 +12,10 @@ def detect_outliers_with_isolation_forest(df):
     df['outlier'] = preds
     return df
 
-
 def remove_outliers(df):
     """
-    Process the CSV file to detect and remove outliers.
+    Process the DataFrame to detect and remove outliers.
     """
-    # Read the CSV file
-    # df = pd.read_csv(input_csv)
-
     # Assuming all columns are relevant for outlier detection
     numeric_cols = df.select_dtypes(include='number').columns
     df_outliers_detected = detect_outliers_with_isolation_forest(df[numeric_cols])
@@ -28,10 +23,7 @@ def remove_outliers(df):
     # Remove rows marked as outliers
     df_no_outliers = df_outliers_detected[df_outliers_detected['outlier'] != -1]
 
-    # Write the processed data to a new CSV file
-    # df_no_outliers.to_csv(output_csv, index=False)
+    # Drop the 'outlier' column
+    df_no_outliers = df_no_outliers.drop(columns=['outlier'])
+    
     return df_no_outliers
-
-# Example usage
-# df = pd.read_csv('Encoded.csv')
-# remove_outliers(df)

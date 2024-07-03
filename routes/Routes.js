@@ -5,7 +5,6 @@ const improvement = require('../controllers/runImprovement.js')
 // router.get('/', Post.getPosts)
 
 router.post('/upload', fileControllerNew.uploadFile);
-//router.get('/hey', fileController.hey);
 
 router.post('/runImprovement', improvement.runImprovement);
 module.exports = router

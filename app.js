@@ -4,7 +4,12 @@ const routes= require ('./routes/Routes');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 
-app.use(cors());
+const corsOptions = {
+  origin: 'https://intellitest-front.onrender.com',
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({extended:true}))
 

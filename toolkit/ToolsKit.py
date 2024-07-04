@@ -28,11 +28,9 @@ def UseToolKit(CheckBoxes, target, CSV_path='Database.csv', missing_values_repre
     if CheckBoxes[4]:
         ChangedCSV = remove_outliers(ChangedCSV)
 
-    # Ensure the temp directory exists
     if not os.path.exists('uploads'):
         os.makedirs('uploads')
 
-    # Get current date and time
     now = datetime.now()
     date_time_str = now.strftime('%Y-%m-%d_%H-%M-%S')
     filename = f"newData_{date_time_str}.csv"
@@ -41,11 +39,10 @@ def UseToolKit(CheckBoxes, target, CSV_path='Database.csv', missing_values_repre
     upload_array = []
     upload_array.append(upload_file_to_gist(full_csv_path))
 
-    # Save the encoders and scaler if they were created
     if CheckBoxes[1] and Encoders:
         encoders_path = os.path.join('uploads', f'encoders_{date_time_str}.pkl')
         try:
-            encoded_data = json.dumps(Encoders, default=str)  # using `str` as default to handle non-serializable types simply
+            encoded_data = json.dumps(Encoders, default=str)
         except TypeError as e:
             encoded_data = None
         if encoded_data is not None:
@@ -59,7 +56,7 @@ def UseToolKit(CheckBoxes, target, CSV_path='Database.csv', missing_values_repre
     if CheckBoxes[2] and Scaler:
         scaler_path = os.path.join('uploads', f'scaler_{date_time_str}.pkl')
         try:
-            scaler_data = json.dumps(Scaler, default=str)  # using `str` as default to handle non-serializable types simply
+            scaler_data = json.dumps(Scaler, default=str)
         except TypeError as e:
             scaler_data = None
         if scaler_data is not None:
@@ -70,18 +67,23 @@ def UseToolKit(CheckBoxes, target, CSV_path='Database.csv', missing_values_repre
     else:  
         upload_array.append("https://example.example")
 
-    # Get the relative path based on the current working directory
     relative_path = os.path.relpath(full_csv_path, start=os.getcwd())
 
-    # Return the paths
-    return upload_array[0], upload_array[1], upload_array[2], relative_path
+    # Return the paths as a JSON-like string
+    result = {
+        'csv_after_toolkit_gist': upload_array[0],
+        'encoded_csv': upload_array[1],
+        'scaled_csv': upload_array[2],
+        'relative_path': relative_path
+    }
+    return json.dumps(result)
 
 if __name__ == "__main__":
     if len(sys.argv) != 5:
-        print("Usage: python your_script.py <checkBoxes><Db><K>")
+        print("Usage: python your_script.py <checkBoxes> <target> <Db> <K>")
         sys.exit(1)
+    checkBoxes = [s.strip().lower() == 'true' for s in sys.argv[1].split(',')]
     target = sys.argv[2]
     Db = sys.argv[3]
     k = sys.argv[4]
-    checkBoxes = [s.strip().lower() == 'true' for s in sys.argv[1].split(',')]
     print(UseToolKit(checkBoxes, target, Db, 'NA', k))

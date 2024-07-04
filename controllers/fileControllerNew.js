@@ -20,48 +20,35 @@ const upload = multer({ storage: storage }).single('file');
 
 const executePythonScript = async (checkbox, target, db, k) => {
   const scriptPath = path.resolve(__dirname, process.env.TOOLKIT_SCRIPT_PATH);
-  return await exec(`python ${scriptPath} ${checkbox} ${target} ${db} ${k}`);
+  const { stdout, stderr } = await exec(`python ${scriptPath} ${checkbox} ${target} ${db} ${k}`);
+  if (stderr) {
+    throw new Error(stderr);
+  }
+  return JSON.parse(stdout);
 };
 
-// Define the route and middleware to handle file uploads and checkbox data
 exports.uploadFile = (req, res) => {
   upload(req, res, async (uploadError) => {
     if (uploadError instanceof multer.MulterError) {
-      // A multer error occurred when uploading.
       return res.status(500).send(`Multer uploading error: ${uploadError.message}`);
     } else if (uploadError) {
-      // An unknown error occurred when uploading.
       return res.status(500).send(`Unknown uploading error: ${uploadError.message}`);
     }
 
-    // Collect request body data
     const k = req.body.k;
     const target = req.body.target;
     const checkboxes = req.body.checkboxes; // Assuming checkboxes is sent as a JSON array or a comma-separated list
     const file = req.file;
 
     try {
-      // Call the Python script
-      const { stdout, stderr } = await executePythonScript(checkboxes, target, file.path, k);
-      if (stderr) {
-        console.error(`stderr: ${stderr}`);
-        return res.status(500).send({ success: false, message: 'Error executing Python script.', error: stderr });
-      }
-      console.log(`stdout: ${stdout}`);
-
-      // Delete the uploaded file after the Python script has finished executing
+      const data = await executePythonScript(checkboxes, target, file.path, k);
       await fs.unlink(file.path);
-
-      // Only send one response, indicating success and including any data or messages
-      return res.send({ success: true, message: 'File uploaded and processed successfully', data: stdout });
+      console.log("solalalallalala "+data.csv_after_toolkit_gist);
+      return res.send({ success: true, message: 'File uploaded and processed successfully', data: [data.csv_after_toolkit_gist, data.encoded_csv, data.scaled_csv, data.relative_path] });
     } catch (error) {
-      console.error(`exec error: ${error}`);
-
-      // Ensure file is deleted even if there is an error
       await fs.unlink(file.path).catch((unlinkError) => {
         console.error(`Error deleting file: ${unlinkError}`);
       });
-
       return res.status(500).send({ success: false, message: 'Failed to execute Python script.', error: error.message });
     }
   });

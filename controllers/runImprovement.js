@@ -21,6 +21,7 @@ exports.runImprovement = async (req, res) => {
             return res.status(500).send({ success: false, message: 'Error executing Python script.', error: stderr });
         }
         // Only send one response, indicating success and including any data or messages
+        console.log("solal ya ben zona ani raev" + stdout);
         return res.send({ success: true, data: stdout });
     } catch (error) {
         console.error(`exec error: ${error}`);

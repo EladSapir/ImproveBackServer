@@ -6,7 +6,7 @@ const path = require('path'); // Import the path module
 const executePythonScript = async (db) => {
     // Resolve the full path to the script
     const scriptPath = path.resolve(__dirname, process.env.RUNIMPROVEMENT_SCRIPT_PATH);
-    return await exec(`python3 ${scriptPath} ${db}`);
+    return await exec(`python ${scriptPath} ${db}`);
 };
 
 exports.runImprovement = async (req, res) => {

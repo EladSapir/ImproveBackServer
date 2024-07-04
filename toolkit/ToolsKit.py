@@ -11,6 +11,7 @@ from uploadfile import *
 import pickle
 import json
 
+
 def UseToolKit(CheckBoxes, target, CSV_path='Database.csv', missing_values_representation='NA', k=1):
     ChangedCSV = pd.read_csv(CSV_path, na_values=missing_values_representation)
     Encoders = {}
@@ -53,7 +54,7 @@ def UseToolKit(CheckBoxes, target, CSV_path='Database.csv', missing_values_repre
             upload_array.append(upload_file_to_gist(encoders_path))
         os.remove(encoders_path)
     else:
-        upload_array.append(None)
+        upload_array.append("https://example.example")
 
     if CheckBoxes[2] and Scaler:
         scaler_path = os.path.join('uploads', f'scaler_{date_time_str}.pkl')
@@ -67,7 +68,7 @@ def UseToolKit(CheckBoxes, target, CSV_path='Database.csv', missing_values_repre
             upload_array.append(upload_file_to_gist(scaler_path))
         os.remove(scaler_path)
     else:  
-        upload_array.append(None)
+        upload_array.append("https://example.example")
 
     # Get the relative path based on the current working directory
     relative_path = os.path.relpath(full_csv_path, start=os.getcwd())

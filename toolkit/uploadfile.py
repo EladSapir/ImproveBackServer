@@ -54,7 +54,6 @@ def upload_file_to_gist(file_path):
     if response.status_code == 201:
         # Get the URL of the created Gist
         gist_url = response.json()['html_url']
-        print("Gist created successfully:", gist_url)
         return gist_url
     else:
         print("Failed to create Gist")

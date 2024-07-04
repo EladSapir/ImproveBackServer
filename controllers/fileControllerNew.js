@@ -20,7 +20,7 @@ const upload = multer({ storage: storage }).single('file');
 
 const executePythonScript = async (checkbox, target, db, k) => {
   const scriptPath = path.resolve(__dirname, process.env.TOOLKIT_SCRIPT_PATH);
-  return await exec(`python3 ${scriptPath} ${checkbox} ${target} ${db} ${k}`);
+  return await exec(`python ${scriptPath} ${checkbox} ${target} ${db} ${k}`);
 };
 
 // Define the route and middleware to handle file uploads and checkbox data

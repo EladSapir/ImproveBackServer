@@ -43,7 +43,6 @@ exports.uploadFile = (req, res) => {
     try {
       const data = await executePythonScript(checkboxes, target, file.path, k);
       await fs.unlink(file.path);
-      console.log("solalalallalala "+data.csv_after_toolkit_gist);
       return res.send({ success: true, message: 'File uploaded and processed successfully', data: [data.csv_after_toolkit_gist, data.encoded_csv, data.scaled_csv, data.relative_path] });
     } catch (error) {
       await fs.unlink(file.path).catch((unlinkError) => {

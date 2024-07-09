@@ -12,7 +12,7 @@ import pickle
 import json
 
 
-def UseToolKit(CheckBoxes, target, CSV_path='Database.csv', missing_values_representation='NA', k=1):
+def UseToolKit(CheckBoxes, target, CSV_path='Database.csv', missing_values_representation='NA', k=5):
     ChangedCSV = pd.read_csv(CSV_path, na_values=missing_values_representation)
     Encoders = {}
     Scaler = None

@@ -20,6 +20,9 @@ exports.runImprovement = async (req, res) => {
     console.log('DB Path:', db);
     try {
         // Call the Python script
+        await axios.post(`${backendUrl}/model/startLearn`, {
+            model_id: modelId,
+        });
         const { stdout, stderr } = await executePythonScript(db);
         if (stderr) {
             console.error(`stderr: ${stderr}`);
@@ -55,7 +58,9 @@ exports.runImprovement = async (req, res) => {
         });
 
         console.log("Learning results saved to model history");
-
+        await axios.post(`${backendUrl}/model/finishLearn`, {
+            model_id: modelId,
+        });
         // Only send one response, indicating success and including any data or messages
         return res.send({ success: true, data: output });
     } catch (error) {
